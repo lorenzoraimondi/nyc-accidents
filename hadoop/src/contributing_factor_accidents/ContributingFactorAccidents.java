@@ -34,14 +34,12 @@ public class ContributingFactorAccidents extends Configured implements Tool {
 		
         JobConf job = new JobConf(conf, ContributingFactorAccidents.class);
         job.setJobName("contributing_factor_accidents");
-		
-        //DOVUTO AGGIUNGERE MAP OUT CLASS
+	
         job.setMapOutputValueClass(IntWritable.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(SumAvgWritable.class);
 			
         job.setMapperClass(ContributingFactorAccidentsMap.class);
-        //DOVUTO TOGLIERE COMBINER
         job.setReducerClass(ContributingFactorAccidentsReduce.class);
 			
         job.setInputFormat(TextInputFormat.class);
