@@ -3,6 +3,7 @@ package src.utils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Date;
 
 /**
@@ -28,7 +29,7 @@ public class YearWeekCalculator {
 		SimpleDateFormat df = new SimpleDateFormat(dateFormat);
 		Date date = df.parse(inputDate);
 		
-		Calendar cal = Calendar.getInstance();
+		Calendar cal = Calendar.getInstance(Locale.ITALIAN);
 		cal.setTime(date);
 		
 		int year = cal.get(Calendar.YEAR);

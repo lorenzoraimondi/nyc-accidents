@@ -1,12 +1,17 @@
 package src.utils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
 import src.types.YearWeekWritable;
 
@@ -18,53 +23,95 @@ import src.types.YearWeekWritable;
  */
 public class NumWeeksCalculator {
 	
-	private String path;
-	private int numWeeks;
-	
-	public NumWeeksCalculator(String path) throws FileNotFoundException, ParseException{
-		this.path = path;
+	private static Path path;
+	private static int numWeeks;
+	private static Configuration conf;
 		
-		calculate();
+	public NumWeeksCalculator() {
+		
+		NumWeeksCalculator.numWeeks = -1;
+		
 	}
+
 	
 	/**
 	 * Performs calculation of the number of weeks  
-	 * 
-	 * @throws FileNotFoundException
+	 * @throws IOException 
 	 */
-	private void calculate() throws FileNotFoundException {
-		LineParser parser = null;
+	private static void calculate() throws IOException {
+		
+		LineParser parser = new LineParser();
 		Set<YearWeekWritable> ywSet = new HashSet<YearWeekWritable>();
-        Scanner scanner = new Scanner(new File(path));
+		
+        FileSystem fs = path.getFileSystem(conf);
+        FSDataInputStream inputStream = fs.open(path);
         
-        while (scanner.hasNext()) {
-        	String line = scanner.nextLine();
-        	parser = new LineParser();
-        	Map<Attribute, String> map = Attribute.getMapping(parser.parse(line));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        
+        String buffer = reader.readLine();
+        
+        while (buffer != null) {
+        	
+        	Map<Attribute, String> map = Attribute.getMapping(parser.parse(buffer));
         	String date = map.get(Attribute.DATE);
   
         	YearWeekWritable yearWeek = new YearWeekWritable();
+        	
 			try {
 				yearWeek.setFromDate(date);
 			} catch (ParseException e) {
 				//Skips the line in case of bad record.
+				buffer = reader.readLine();
 				continue;
 			}
 			
         	ywSet.add(yearWeek);
+        	
+        	buffer = reader.readLine();
         }
         
         numWeeks = ywSet.size();
-        scanner.close();
+        
+        reader.close();
+        fs.close();
+        
 	}
 	
 	/**
-	 * Returns the number of weeks.
+	 * Returns the number of weeks, calculating it if not calculated yet.
 	 * 
 	 * @return number of weeks.
+	 * @throws IOException 
 	 */
-	public int getNumWeeks(){
+	public int getNumWeeks() throws IOException{
+		
+		if(numWeeks == -1)
+			calculate();
+		
 		return numWeeks;
+		
+	}
+
+	/**
+	 * Sets the Job Configuration in order to make the class access HDFS.
+	 * 
+	 * @param conf
+	 */
+	public void setConf(Configuration conf) {
+		
+		NumWeeksCalculator.conf = conf;
+		
+	}
+
+	/**
+	 * Sets the dataset HDFS path.
+	 * 
+	 * @param filePath
+	 */
+	public void setPath(String filePath) {
+		
+		NumWeeksCalculator.path = new Path(filePath);
+		
 	}
 	
 

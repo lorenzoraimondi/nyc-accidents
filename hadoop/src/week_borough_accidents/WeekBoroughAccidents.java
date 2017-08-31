@@ -35,16 +35,17 @@ public class WeekBoroughAccidents extends Configured implements Tool {
 	private static String intermediatePath;
 	private static String outPath1;
 	private static String outPath2;
+	private static String filePath;
+	private static NumWeeksCalculator weeksCalc;
 
 	@Override
 	public int run(String[] args) throws Exception {
-		intermediatePath = args[1]+"/temp";
-		outPath1 = args[1]+"/outJ31";
-		outPath2 = args[1]+"/outJ32";
 		
-		NumWeeksCalculator weeksCalc = new NumWeeksCalculator(args[0]);
 		Configuration conf = getConf();
 		
+        weeksCalc.setConf(conf);
+        weeksCalc.setPath(filePath);
+        
 		//System.out.println(weeksCalc.getNumWeeks());
 		conf.setInt("num_weeks",weeksCalc.getNumWeeks());
 		
@@ -90,7 +91,8 @@ public class WeekBoroughAccidents extends Configured implements Tool {
 		
 		job2.waitForCompletion(true);
 		
-		//Job job3 = new Job(conf);
+		
+		
 		Job job3 = Job.getInstance(conf);
         job3.setJobName("week_borough_average");
         job3.setJarByClass(WeekBoroughAccidents.class);
@@ -114,6 +116,13 @@ public class WeekBoroughAccidents extends Configured implements Tool {
 	}
 
 	public static void main(String[] args) throws Exception {
+		
+		intermediatePath = args[1]+"/temp";
+		outPath1 = args[1]+"/out_job3_1";
+		outPath2 = args[1]+"/out_job3_2";
+		filePath = args[0];
+		
+		weeksCalc = new NumWeeksCalculator();
 		
 		int res = ToolRunner.run(new Configuration(), new WeekBoroughAccidents(), args);
         System.exit(res);
