@@ -50,7 +50,6 @@ public class WeekBoroughAccidentsMap extends Mapper<LongWritable, Text, WeekBoro
 		
 		borough.set(map.get(Attribute.BOROUGH));
 		
-		//TODO https://hadoop.apache.org/docs/r1.2.1/mapred_tutorial.html#Skipping+Bad+Records
 		if(borough.equals(missingBorough)){
 			//System.out.println("Bad record, skip it");
 			return;
