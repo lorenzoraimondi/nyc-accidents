@@ -1,3 +1,5 @@
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/lorenzoraimondi/nyc-accidents.git/master?filepath=python)
+
 # nyc-accidents
 Hadoop project for Middleware Technologies for Distributed Systems course @ Politecnico di Milano
 
